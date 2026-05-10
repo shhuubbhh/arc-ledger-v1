@@ -8,8 +8,13 @@ type ServerEntry = {
 };
 
 async function getServerEntry(): Promise<ServerEntry> {
-  const m = await import("@tanstack/react-start/server-entry");
-  return (m as { default?: ServerEntry }).default ?? (m as unknown as ServerEntry);
+  try {
+    const m = await import("@tanstack/react-start/server-entry");
+    return (m as { default?: ServerEntry }).default ?? (m as unknown as ServerEntry);
+  } catch (e) {
+    console.error("Failed to import server entry:", e);
+    throw e;
+  }
 }
 
 function brandedErrorResponse(error?: Error | string): Response {
@@ -67,9 +72,10 @@ export default {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
-    } catch (error) {
-      console.error(error);
-      return brandedErrorResponse(error as Error);
+    } catch (error: any) {
+      const errorDetails = error?.stack || error?.message || String(error);
+      console.error("Critical Server Error:", errorDetails);
+      return brandedErrorResponse(errorDetails);
     }
   },
 };
