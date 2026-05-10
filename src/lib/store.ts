@@ -202,9 +202,16 @@ export const useStore = create<State>()(
     }),
     {
       name: "arckhata-store-v2",
-      storage: createJSONStorage(() =>
-        typeof window !== "undefined" ? window.localStorage : (undefined as any),
-      ),
+      storage: createJSONStorage(() => {
+        if (typeof window !== "undefined" && window.localStorage) {
+          return window.localStorage;
+        }
+        return {
+          getItem: () => null,
+          setItem: () => {},
+          removeItem: () => {},
+        };
+      }),
       skipHydration: true,
     },
   ),
