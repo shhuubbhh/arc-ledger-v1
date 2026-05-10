@@ -6,9 +6,14 @@ import type { PrivyProfile } from "./store";
 const PRIVY_APP_ID = import.meta.env.VITE_PRIVY_APP_ID || "cmoy4iag0006i0cjv1s0rxjcv";
 
 export function PrivyProvider({ children }: { children: React.ReactNode }) {
+  // If App ID is missing, provide a clear console warning but don't crash the render
+  if (!PRIVY_APP_ID) {
+    console.warn("Privy App ID is missing. Authentication will not work.");
+  }
+
   return (
     <RealPrivyProvider
-      appId={PRIVY_APP_ID}
+      appId={PRIVY_APP_ID || "missing-app-id"}
       config={{
         loginMethods: ["email", "wallet", "google"],
         appearance: {

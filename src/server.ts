@@ -4,15 +4,27 @@ type ServerEntry = {
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    // Polyfill common Node.js globals that some Web3 libraries expect
+    if (typeof globalThis.Buffer === "undefined") {
+      try {
+        const { Buffer } = await import("node:buffer");
+        globalThis.Buffer = Buffer;
+      } catch (e) { /* ignore */ }
+    }
+    
+    if (typeof globalThis.process === "undefined") {
+      (globalThis as any).process = { env: {} };
+    }
+
     try {
-      // Move all logic and imports inside the handler to satisfy Cloudflare's global scope rules
       const [{ renderErrorPage }, { consumeLastCapturedError }] = await Promise.all([
         import("./lib/error-page"),
         import("./lib/error-capture")
       ]);
 
-      const brandedErrorResponse = (error?: Error | string) => {
-        return new Response(renderErrorPage(error), {
+      const brandedErrorResponse = (error?: any) => {
+        const message = error?.stack || error?.message || (typeof error === 'string' ? error : JSON.stringify(error));
+        return new Response(renderErrorPage(message), {
           status: 500,
           headers: { "content-type": "text/html; charset=utf-8" },
         });
@@ -41,12 +53,12 @@ export default {
         
         return response;
       } catch (error: any) {
-        const details = error?.stack || error?.message || String(error);
-        console.error("SSR Crash:", details);
-        return brandedErrorResponse(details);
+        console.error("SSR Crash:", error);
+        return brandedErrorResponse(error);
       }
     } catch (critical: any) {
-      return new Response(`Critical Boot Error: ${critical?.message || critical}`, { status: 500 });
+      console.error("Critical Boot Error:", critical);
+      return new Response(`Critical Boot Error: ${critical?.stack || critical?.message || critical}`, { status: 500 });
     }
   },
 };
