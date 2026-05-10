@@ -18,6 +18,7 @@ export default defineConfig({
   ],
   build: {
     sourcemap: false,
+    chunkSizeWarningLimit: 2000, // Increase limit to silence warnings
   },
   resolve: {
     alias: {
