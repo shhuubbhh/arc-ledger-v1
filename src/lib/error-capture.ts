@@ -8,14 +8,17 @@ function record(error: unknown) {
   lastCapturedError = { error, at: Date.now() };
 }
 
-if (typeof globalThis.addEventListener === "function") {
-  globalThis.addEventListener("error", (event) => record((event as ErrorEvent).error ?? event));
-  globalThis.addEventListener("unhandledrejection", (event) =>
-    record((event as PromiseRejectionEvent).reason),
-  );
+// Ensure this only runs when imported, and doesn't do anything "active" globally
+export function initErrorCapture() {
+  if (typeof globalThis.addEventListener === "function") {
+    globalThis.addEventListener("error", (event) => record((event as ErrorEvent).error ?? event));
+    globalThis.addEventListener("unhandledrejection", (event) =>
+      record((event as PromiseRejectionEvent).reason),
+    );
+  }
 }
 
-export function consumeLastCapturedError(): unknown {
+export function consumeLastCapturedError(): any {
   if (!lastCapturedError) return undefined;
   if (Date.now() - lastCapturedError.at > TTL_MS) {
     lastCapturedError = undefined;
@@ -25,3 +28,5 @@ export function consumeLastCapturedError(): unknown {
   lastCapturedError = undefined;
   return error;
 }
+
+// We don't call initErrorCapture() here to keep global scope clean
