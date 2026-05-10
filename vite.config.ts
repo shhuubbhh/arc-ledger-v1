@@ -15,6 +15,8 @@ export default defineConfig({
     },
   },
   tanstackStart: {
-    deployment: 'vercel',
+    deployment: {
+      preset: 'vercel',
+    },
   },
 });
