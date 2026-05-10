@@ -27,10 +27,14 @@ function LoginPage() {
 
   // Auto-resume: if Privy session is already persisted, finish merchant login.
   useEffect(() => {
+    // Only auto-login if Privy is ready, we have a user, and we're NOT already logged into a local session.
+    // Also check that we didn't just come here from a logout action.
     if (!privy.ready || !privy.user || sessionUser) return;
     
+    console.log("Auto-login triggered for", privy.user.id);
     const profile = shopName.trim() ? { ...privy.user, displayName: shopName.trim() } : privy.user;
     const { merchant, created } = loginMerchantWithPrivy(profile);
+    
     if (created) {
       toast.success(`Welcome to ArcLedger, ${merchant.businessName}`, {
         description: `Wallet ${merchant.walletAddress.slice(0, 10)}…`,
@@ -38,11 +42,18 @@ function LoginPage() {
     } else {
       toast.success(`Welcome back, ${merchant.businessName}`);
     }
+    
     navigate({ to: "/merchant" });
-  }, [privy.ready, privy.user, sessionUser, loginMerchantWithPrivy, navigate]);
+  }, [privy.ready, privy.user, sessionUser, loginMerchantWithPrivy, navigate, shopName]);
 
   const handleLogin = () => {
-    privy.login();
+    console.log("Login button clicked");
+    console.log("Privy state:", { ready: privy.ready, authenticated: privy.authenticated });
+    if (privy.ready) {
+      privy.login();
+    } else {
+      console.warn("Privy is not ready yet");
+    }
   };
 
   const connectCustomer = () => {

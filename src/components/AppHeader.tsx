@@ -63,7 +63,11 @@ export function AppHeader() {
                 <span className="font-mono text-xs">{shortAddr(user.walletAddress)}</span>
                 <Badge variant="secondary" className="text-[10px]">{user.role}</Badge>
               </div>
-              <Button variant="ghost" size="icon" onClick={() => { logout(); privy.logout(); navigate({ to: "/" }); }}>
+              <Button variant="ghost" size="icon" onClick={async () => { 
+                await privy.logout(); 
+                logout(); 
+                navigate({ to: "/" }); 
+              }}>
                 <LogOut className="h-4 w-4" />
               </Button>
             </>
