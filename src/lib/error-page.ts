@@ -1,4 +1,6 @@
-export function renderErrorPage(): string {
+export function renderErrorPage(error?: Error | string): string {
+  const message = error instanceof Error ? error.message : (error || "Unknown error");
+
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -20,6 +22,7 @@ export function renderErrorPage(): string {
     <div class="card">
       <h1>This page didn't load</h1>
       <p>Something went wrong on our end. You can try refreshing or head back home.</p>
+      <pre style="text-align: left; background: #eee; padding: 1rem; border-radius: 0.5rem; overflow: auto; max-height: 200px; font-size: 12px; margin-bottom: 1.5rem;">${message}</pre>
       <div class="actions">
         <button class="primary" onclick="location.reload()">Try again</button>
         <a class="secondary" href="/">Go home</a>
