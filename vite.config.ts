@@ -13,9 +13,6 @@ export default defineConfig({
     build: {
       sourcemap: false,
     },
-    ssr: {
-      noExternal: true, // Bundle all dependencies to avoid SSR issues on Cloudflare
-    },
   },
   tanstackStart: {
     server: { entry: "server" },
