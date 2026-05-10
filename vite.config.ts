@@ -17,7 +17,5 @@ export default defineConfig({
       noExternal: true, // Bundle all dependencies to avoid SSR issues on Cloudflare
     },
   },
-  tanstackStart: {
-    server: { entry: "server" },
-  },
+  tanstackStart: {},
 });
