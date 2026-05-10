@@ -11,14 +11,18 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   plugins: [
-    tanstackStart(),
+    tanstackStart({
+      server: {
+        preset: "vercel",
+      },
+    }),
     react(),
     tsconfigPaths(),
     tailwindcss(),
   ],
   build: {
     sourcemap: false,
-    chunkSizeWarningLimit: 2000, // Increase limit to silence warnings
+    chunkSizeWarningLimit: 2000,
   },
   resolve: {
     alias: {
